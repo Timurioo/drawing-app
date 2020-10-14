@@ -9,7 +9,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RelativeLayout
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.jaredrummler.android.colorpicker.ColorShape
@@ -20,11 +23,14 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
     private lateinit var drawingView: DrawingView
     private lateinit var dropLayout: RelativeLayout
     private lateinit var params: RelativeLayout.LayoutParams
-    private var editTextList = mutableListOf<View>()
-
-    private lateinit var addText: Button
+    private lateinit var addTextButton: Button
     private lateinit var colorButton: Button
     private lateinit var resetButton: Button
+    private lateinit var brushDensityBar: SeekBar
+    private lateinit var textSizeBar: SeekBar
+
+    private var editTextList = mutableListOf<View>()
+
     private var dragListener: View.OnDragListener = View.OnDragListener { v, event ->
         val view: View = event.localState as View
         val vg = v.parent as ViewGroup
@@ -55,6 +61,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
                 params.topMargin = y
                 view.layoutParams = params
                 view.visibility = View.VISIBLE
+                view.isClickable = false
             }
             else -> {
             }
@@ -66,15 +73,25 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        addTextButton = findViewById(R.id.textButton)
+        colorButton = findViewById(R.id.colorButton)
+        resetButton = findViewById(R.id.resetButton)
         drawingView = findViewById(R.id.drawingView)
         dropLayout = findViewById(R.id.dropLayout)
+        brushDensityBar = findViewById(R.id.brushDensityBar)
+        textSizeBar = findViewById(R.id.textSizeBar)
+
+        brushDensityBar.progress = 8
+        textSizeBar.progress = 13
+
         dropLayout.setOnDragListener(dragListener)
         dropLayout.setOnTouchListener(onTouchListener)
-        addText = findViewById<View>(R.id.textButton) as Button
-        addText.setOnClickListener{ v ->
+
+        addTextButton.setOnClickListener{ v ->
             val relativeParent = v.parent as ViewGroup
             val editText = EditText(v.context)
             editText.id = View.generateViewId()
+            editText.textSize = textSizeBar.progress.toFloat()
             editText.tag = "editText${editTextList.size}"
             editTextList.add(editText)
             relativeParent.addView(editText)
@@ -87,19 +104,49 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
             }
         }
 
-        colorButton = findViewById(R.id.colorButton)
         colorButton.setOnClickListener { createColorPickerDialog() }
 
-        resetButton = findViewById(R.id.resetButton)
         resetButton.setOnClickListener {
             if (editTextList.isNotEmpty()) {
                 for (i in editTextList.size - 1 downTo 0) {
-                    findViewById<RelativeLayout>(R.id.onDraglayout).removeView(findViewById(editTextList[i].id))
+                    findViewById<RelativeLayout>(R.id.onDraglayout)
+                                .removeView(findViewById(editTextList[i].id))
                 }
                 editTextList.clear()
             }
             drawingView.resetPaths()
         }
+
+        addTextButton.setOnLongClickListener {
+            textSizeBar.isVisible = !textSizeBar.isVisible
+            true
+        }
+
+        colorButton.setOnLongClickListener {
+            brushDensityBar.isVisible = !brushDensityBar.isVisible
+            true
+        }
+
+        textSizeBar.setOnSeekBarChangeListener(object: OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                val activeEditText = if (editTextList.isNotEmpty()) currentFocus as EditText else null
+                activeEditText?.textSize = i.toFloat()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                seekBar.isVisible = !seekBar.isVisible
+            }
+        })
+
+        brushDensityBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                drawingView.changeableWidth = i.toFloat()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                seekBar.isVisible = !seekBar.isVisible
+            }
+        })
     }
 
     override fun onColorSelected(dialogId: Int, color: Int) {
@@ -118,5 +165,4 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
     }
 
     override fun onDialogDismissed(dialogId: Int) {}
-
 }

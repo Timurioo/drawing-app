@@ -15,14 +15,39 @@
     <view
         android:id="@+id/drawingView"
         class="by.tska.drawApp.DrawingView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <SeekBar
+        android:id="@+id/brushDensityBar"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/colorButton"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:visibility="invisible"
+        android:min="5"
+        android:max="25"
+        />
+
+    <SeekBar
+        android:id="@+id/textSizeBar"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/textButton"
+        android:layout_alignParentEnd="true"
+        android:progress="100"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:visibility="invisible"
+        android:min="7"
+        android:max="50"
+        />
 
     <Button
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         android:text="reset" />

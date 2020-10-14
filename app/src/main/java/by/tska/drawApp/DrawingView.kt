@@ -15,12 +15,13 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private val strokes = mutableListOf<Stroke>()
 
     var changeableColor: Int = Color.RED
+    var changeableWidth: Float = 8f
 
     init {
         val brush = Paint(ANTI_ALIAS_FLAG).apply {
             color = changeableColor
             textSize = 10f
-            strokeWidth = 8f
+            strokeWidth = changeableWidth
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
         }
@@ -43,8 +44,7 @@ class DrawingView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             MotionEvent.ACTION_DOWN -> {
                 val paint = Paint(ANTI_ALIAS_FLAG).apply {
                     color = changeableColor
-                    textSize = 10f
-                    strokeWidth = 8f
+                    strokeWidth = changeableWidth
                     style = Paint.Style.STROKE
                     strokeJoin = Paint.Join.ROUND
                 }
